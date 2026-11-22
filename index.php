@@ -3,6 +3,10 @@
 date_default_timezone_set('America/Sao_Paulo');
 require_once "config/conexao.php";
 
+// ==================================================
+// INDICADORES DO DASHBOARD
+// ==================================================
+
 // Consultar quantidade de produtos
 $totalProdutos = $conexao->query(
     "SELECT COUNT(*) FROM produtos WHERE ativo = 1"
@@ -23,19 +27,32 @@ $totalPendentes = $conexao->query(
     "SELECT COUNT(*) FROM fretes WHERE status = 'PENDENTE'"
 )->fetchColumn();
 
-// Consultar os últimos fretes
+// Consultar fretes em andamento
+$totalEmAndamento = $conexao->query(
+    "SELECT COUNT(*) FROM fretes WHERE status = 'EM ANDAMENTO'"
+)->fetchColumn();
+
+// Consultar fretes concluídos
+$totalConcluidos = $conexao->query(
+    "SELECT COUNT(*) FROM fretes WHERE status IN ('CONCLUIDO', 'CONCLUÍDO')"
+)->fetchColumn();
+
+// ==================================================
+// ÚLTIMOS FRETES CADASTRADOS
+// ==================================================
+
 $sql = "SELECT
             f.id,
             f.data_frete,
             f.status,
             t.nome AS transportador
         FROM fretes f
-        INNER JOIN transportadores t
+        LEFT JOIN transportadores t
             ON t.id = f.transportador_id
         ORDER BY f.id DESC
         LIMIT 5";
 
-$ultimosFretes = $conexao->query($sql)->fetchAll();
+$ultimosFretes = $conexao->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -117,6 +134,7 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
 
         <div>
             <h4 class="mb-1">Painel de Controle</h4>
+
             <small class="text-muted">
                 Bem-vindo ao Gerenciador Logístico
             </small>
@@ -133,6 +151,8 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
     <!-- INDICADORES -->
 
     <div class="row g-3 mb-4">
+
+        <!-- PRODUTOS -->
 
         <div class="col-md-6 col-xl-3">
 
@@ -156,6 +176,8 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
         </div>
 
 
+        <!-- TRANSPORTADORES -->
+
         <div class="col-md-6 col-xl-3">
 
             <div class="card-dashboard">
@@ -177,6 +199,8 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
 
         </div>
 
+
+        <!-- TOTAL DE FRETES -->
 
         <div class="col-md-6 col-xl-3">
 
@@ -200,6 +224,8 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
         </div>
 
 
+        <!-- FRETES PENDENTES -->
+
         <div class="col-md-6 col-xl-3">
 
             <div class="card-dashboard">
@@ -215,6 +241,54 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
 
                 <small class="text-muted">
                     Aguardando andamento
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- FRETES EM ANDAMENTO -->
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card-dashboard">
+
+                <h6>
+                    <i class="bi bi-truck text-primary"></i>
+                    Fretes em andamento
+                </h6>
+
+                <h2>
+                    <?php echo $totalEmAndamento; ?>
+                </h2>
+
+                <small class="text-muted">
+                    Fretes em transporte
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- FRETES ENTREGUES -->
+
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card-dashboard">
+
+                <h6>
+                    <i class="bi bi-check-circle text-success"></i>
+                    Fretes entregues
+                </h6>
+
+                <h2>
+                    <?php echo $totalConcluidos; ?>
+                </h2>
+
+                <small class="text-muted">
+                    Entregas concluídas
                 </small>
 
             </div>
@@ -316,7 +390,7 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
                                 <tr>
 
                                     <td>
-                                        #<?php echo $frete["id"]; ?>
+                                        #<?php echo htmlspecialchars($frete["id"]); ?>
                                     </td>
 
                                     <td>
@@ -328,16 +402,39 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
 
                                     <td>
                                         <?php echo htmlspecialchars(
-                                            $frete["transportador"]
+                                            $frete["transportador"] ?? 'Não informado'
                                         ); ?>
                                     </td>
 
                                     <td>
 
-                                        <span class="badge bg-warning text-dark">
-                                            <?php echo htmlspecialchars(
-                                                $frete["status"]
-                                            ); ?>
+                                        <?php
+
+                                        $status = strtoupper(trim($frete['status'] ?? ''));
+
+                                        $corStatus = 'bg-secondary';
+
+                                        if ($status == 'PENDENTE') {
+
+                                            $corStatus = 'bg-warning text-dark';
+
+                                        } elseif ($status == 'EM ANDAMENTO') {
+
+                                            $corStatus = 'bg-primary';
+
+                                        } elseif (
+                                            $status == 'CONCLUIDO' ||
+                                            $status == 'CONCLUÍDO'
+                                        ) {
+
+                                            $corStatus = 'bg-success';
+
+                                        }
+
+                                        ?>
+
+                                        <span class="badge <?php echo $corStatus; ?>">
+                                            <?php echo htmlspecialchars($frete["status"] ?? ''); ?>
                                         </span>
 
                                     </td>
@@ -351,9 +448,7 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
                             <tr>
 
                                 <td colspan="4" class="text-center text-muted py-4">
-
                                     Nenhum frete cadastrado.
-
                                 </td>
 
                             </tr>
@@ -370,6 +465,8 @@ $ultimosFretes = $conexao->query($sql)->fetchAll();
 
     </div>
 
+
+    <!-- RODAPÉ -->
 
     <footer class="text-center text-muted mt-4 small">
 

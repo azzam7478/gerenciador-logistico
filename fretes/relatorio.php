@@ -15,20 +15,14 @@ $sql = "SELECT
             t.nome AS transportador,
             o.cidade AS origem,
             d.cidade AS destino
-
         FROM fretes f
-
         LEFT JOIN transportadores t
             ON t.id = f.transportador_id
-
         LEFT JOIN enderecos o
             ON o.id = f.endereco_origem_id
-
         LEFT JOIN enderecos d
             ON d.id = f.endereco_destino_id
-
         WHERE f.data_frete = :data
-
         ORDER BY f.id DESC";
 
 $stmt = $conexao->prepare($sql);
@@ -38,6 +32,29 @@ $fretes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $total_fretes = count($fretes);
 
+// Busca os produtos dos fretes consultados
+$sqlProdutos = "SELECT
+                    fp.frete_id,
+                    p.codigo,
+                    p.descricao,
+                    p.unidade,
+                    fp.quantidade
+                FROM frete_produtos fp
+                INNER JOIN produtos p
+                    ON p.id = fp.produto_id
+                INNER JOIN fretes f
+                    ON f.id = fp.frete_id
+                WHERE f.data_frete = :data
+                ORDER BY p.descricao";
+
+$stmtProdutos = $conexao->prepare($sqlProdutos);
+$stmtProdutos->execute([':data' => $data]);
+
+$produtosPorFrete = [];
+
+while ($produto = $stmtProdutos->fetch(PDO::FETCH_ASSOC)) {
+    $produtosPorFrete[$produto['frete_id']][] = $produto;
+}
 
 // ==================================================
 // EXPORTAR RELATORIO CSV PARA EXCEL
@@ -45,46 +62,88 @@ $total_fretes = count($fretes);
 
 if (isset($_GET['exportar'])) {
 
-    // Limpa qualquer saída anterior
     if (ob_get_length()) {
         ob_clean();
     }
 
-    // Cabeçalhos do arquivo
     header('Content-Type: text/csv; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="relatorio_fretes_' . $data . '.csv"');
+
+    header(
+        'Content-Disposition: attachment; filename="relatorio_fretes_' .
+        $data . '.csv"'
+    );
+
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    // Abre a saída
     $arquivo = fopen('php://output', 'w');
 
-    // BOM UTF-8
+    // BOM UTF-8 para preservar acentos no Excel
     fwrite($arquivo, "\xEF\xBB\xBF");
 
-    // Cabeçalho
+    // Cabeçalho do CSV
     fputcsv($arquivo, [
         'ID',
         'Data',
         'Transportador',
         'Origem',
         'Destino',
+        'Codigo Produto',
+        'Descricao Produto',
+        'Quantidade',
+        'Unidade',
         'Status',
         'Observacao'
     ], ';');
 
-    // Dados dos fretes
+    // Exportar cada frete
     foreach ($fretes as $frete) {
 
-        fputcsv($arquivo, [
-            $frete['id'],
-            date('d/m/Y', strtotime($frete['data_frete'])),
-            $frete['transportador'] ?? '',
-            $frete['origem'] ?? '',
-            $frete['destino'] ?? '',
-            $frete['status'] ?? '',
-            $frete['observacao'] ?? ''
-        ], ';');
+        $produtos = $produtosPorFrete[$frete['id']] ?? [];
+
+        // Se o frete não tiver produtos
+        if (count($produtos) == 0) {
+
+            fputcsv($arquivo, [
+                $frete['id'],
+                date('d/m/Y', strtotime($frete['data_frete'])),
+                $frete['transportador'] ?? '',
+                $frete['origem'] ?? '',
+                $frete['destino'] ?? '',
+                '',
+                'Nenhum produto vinculado',
+                '',
+                '',
+                $frete['status'] ?? '',
+                $frete['observacao'] ?? ''
+            ], ';');
+
+        } else {
+
+            // Uma linha para cada produto
+            foreach ($produtos as $produto) {
+
+                fputcsv($arquivo, [
+                    $frete['id'],
+                    date('d/m/Y', strtotime($frete['data_frete'])),
+                    $frete['transportador'] ?? '',
+                    $frete['origem'] ?? '',
+                    $frete['destino'] ?? '',
+                    $produto['codigo'],
+                    $produto['descricao'],
+                    number_format(
+                        (float)$produto['quantidade'],
+                        2,
+                        ',',
+                        '.'
+                    ),
+                    $produto['unidade'],
+                    $frete['status'] ?? '',
+                    $frete['observacao'] ?? ''
+                ], ';');
+
+            }
+        }
     }
 
     fclose($arquivo);
@@ -97,13 +156,9 @@ if (isset($_GET['exportar'])) {
 <html lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
-
     <title>Relatório de Fretes</title>
-
     <link rel="stylesheet" href="../assets/css/style.css">
-
 </head>
 
 <body>
@@ -156,16 +211,15 @@ if (isset($_GET['exportar'])) {
     <table>
 
         <thead>
-
             <tr>
                 <th>ID</th>
                 <th>Transportador</th>
                 <th>Origem</th>
                 <th>Destino</th>
+                <th>Produtos</th>
                 <th>Status</th>
                 <th>Observação</th>
             </tr>
-
         </thead>
 
         <tbody>
@@ -193,6 +247,39 @@ if (isset($_GET['exportar'])) {
                     </td>
 
                     <td>
+                        <?php
+                        $produtos = $produtosPorFrete[$frete['id']] ?? [];
+
+                        if (count($produtos) > 0):
+
+                            foreach ($produtos as $produto):
+                        ?>
+                                <div>
+                                    <strong>
+                                        <?= htmlspecialchars($produto['codigo']) ?>
+                                    </strong>
+                                    -
+                                    <?= htmlspecialchars($produto['descricao']) ?>
+                                    <br>
+                                    Quantidade:
+                                    <?= number_format(
+                                        (float)$produto['quantidade'],
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?>
+                                    <?= htmlspecialchars($produto['unidade']) ?>
+                                </div>
+                        <?php
+                            endforeach;
+
+                        else:
+                            echo "Nenhum produto vinculado";
+                        endif;
+                        ?>
+                    </td>
+
+                    <td>
                         <?= htmlspecialchars($frete['status'] ?? '') ?>
                     </td>
 
@@ -207,7 +294,7 @@ if (isset($_GET['exportar'])) {
         <?php else: ?>
 
             <tr>
-                <td colspan="6">
+                <td colspan="7">
                     Nenhum frete encontrado para esta data.
                 </td>
             </tr>

@@ -1,10 +1,28 @@
 
+/* ==========================================
+   GERENCIADOR LOGÍSTICO - IDENTIDADE VISUAL
+========================================== */
+
+:root {
+    --azul-escuro: #172b4d;
+    --azul: #2685d8;
+    --azul-claro: #eaf3fc;
+    --fundo: #f4f6fa;
+    --texto: #263445;
+    --cinza: #6c757d;
+}
+
 /* CONFIGURAÇÕES GERAIS */
 
+* {
+    box-sizing: border-box;
+}
+
 body {
-    background-color: #f4f6f9;
+    background-color: var(--fundo);
     font-family: Arial, Helvetica, sans-serif;
     margin: 0;
+    color: var(--texto);
 }
 
 /* MENU LATERAL */
@@ -12,33 +30,55 @@ body {
 .sidebar {
     width: 250px;
     min-height: 100vh;
-    background-color: #172b4d;
+    background: linear-gradient(180deg, #172b4d, #203d66);
     position: fixed;
     top: 0;
     left: 0;
     color: white;
-    padding: 20px 15px;
+    padding: 25px 15px;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.08);
+    z-index: 1000;
 }
 
 .sidebar h4 {
     text-align: center;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
     font-weight: bold;
+    letter-spacing: 1px;
+    font-size: 20px;
+}
+
+.sidebar h4 i {
+    color: #54b4ff;
+    margin-right: 5px;
 }
 
 .sidebar a {
     display: block;
     color: #dce3ed;
     text-decoration: none;
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 5px;
+    padding: 13px 15px;
+    border-radius: 8px;
+    margin-bottom: 7px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.sidebar a i {
+    font-size: 17px;
 }
 
 .sidebar a:hover,
 .sidebar a.active {
-    background-color: #2685d8;
+    background-color: var(--azul);
     color: white;
+    transform: translateX(3px);
+}
+
+.sidebar hr {
+    border-color: rgba(255,255,255,0.2);
+    margin-top: 25px;
+    margin-bottom: 20px;
 }
 
 /* CONTEÚDO PRINCIPAL */
@@ -46,34 +86,74 @@ body {
 .main-content {
     margin-left: 250px;
     padding: 30px;
+    min-height: 100vh;
 }
+
+/* CABEÇALHO */
 
 .topbar {
     background-color: white;
-    padding: 18px 25px;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 22px 25px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+    border: 1px solid #edf0f4;
 }
 
-/* CARDS */
+.topbar h4 {
+    font-weight: bold;
+    color: var(--azul-escuro);
+}
+
+.topbar small {
+    color: var(--cinza);
+}
+
+/* CARDS DO DASHBOARD */
 
 .card-dashboard {
-    border: none;
-    border-radius: 10px;
-    padding: 22px;
+    border: 1px solid #edf0f4;
+    border-radius: 12px;
+    padding: 23px;
     background-color: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.04);
     height: 100%;
+    transition: all 0.2s ease;
+}
+
+.card-dashboard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 7px 18px rgba(0,0,0,0.08);
 }
 
 .card-dashboard h6 {
-    color: #6c757d;
+    color: var(--cinza);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.card-dashboard h6 i {
+    font-size: 19px;
+    margin-right: 5px;
 }
 
 .card-dashboard h2 {
     font-weight: bold;
-    color: #172b4d;
+    color: var(--azul-escuro);
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.card-dashboard small {
+    font-size: 12px;
+}
+
+/* TÍTULOS DAS SEÇÕES */
+
+.main-content h5 {
+    color: var(--azul-escuro);
+    font-weight: bold;
 }
 
 /* ATALHOS */
@@ -81,19 +161,83 @@ body {
 .atalho {
     display: block;
     background-color: white;
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 25px 20px;
     text-align: center;
-    color: #172b4d;
+    color: var(--azul-escuro);
     text-decoration: none;
     border: 1px solid #e9ecef;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+    height: 100%;
+}
+
+.atalho i {
+    color: var(--azul);
+}
+
+.atalho h6 {
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .atalho:hover {
-    border-color: #2685d8;
-    color: #2685d8;
-    transform: translateY(-2px);
-    transition: 0.2s;
+    border-color: var(--azul);
+    color: var(--azul);
+    transform: translateY(-4px);
+    box-shadow: 0 7px 18px rgba(0,0,0,0.08);
+}
+
+/* TABELA DE FRETES */
+
+.card {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.card-header {
+    border-bottom: 1px solid #edf0f4;
+}
+
+.card-header h5 {
+    font-size: 17px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f7f9fc;
+    color: #536174;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table tbody td {
+    padding: 15px;
+    font-size: 14px;
+    color: #445064;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f5f9ff;
+}
+
+.badge {
+    padding: 7px 11px;
+    font-size: 11px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* RODAPÉ */
+
+footer {
+    padding: 20px 0;
+    border-top: 1px solid #e9ecef;
 }
 
 /* RESPONSIVIDADE */
@@ -104,11 +248,28 @@ body {
         position: relative;
         width: 100%;
         min-height: auto;
+        padding: 15px;
+    }
+
+    .sidebar h4 {
+        margin-bottom: 15px;
+    }
+
+    .sidebar a {
+        padding: 10px;
     }
 
     .main-content {
         margin-left: 0;
         padding: 15px;
+    }
+
+    .topbar {
+        padding: 18px;
+    }
+
+    .card-dashboard {
+        padding: 18px;
     }
 
 }
