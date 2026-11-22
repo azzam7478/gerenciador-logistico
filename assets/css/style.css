@@ -1,0 +1,114 @@
+
+/* CONFIGURAÇÕES GERAIS */
+
+body {
+    background-color: #f4f6f9;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+}
+
+/* MENU LATERAL */
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background-color: #172b4d;
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: white;
+    padding: 20px 15px;
+}
+
+.sidebar h4 {
+    text-align: center;
+    margin-bottom: 35px;
+    font-weight: bold;
+}
+
+.sidebar a {
+    display: block;
+    color: #dce3ed;
+    text-decoration: none;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: #2685d8;
+    color: white;
+}
+
+/* CONTEÚDO PRINCIPAL */
+
+.main-content {
+    margin-left: 250px;
+    padding: 30px;
+}
+
+.topbar {
+    background-color: white;
+    padding: 18px 25px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* CARDS */
+
+.card-dashboard {
+    border: none;
+    border-radius: 10px;
+    padding: 22px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    height: 100%;
+}
+
+.card-dashboard h6 {
+    color: #6c757d;
+}
+
+.card-dashboard h2 {
+    font-weight: bold;
+    color: #172b4d;
+}
+
+/* ATALHOS */
+
+.atalho {
+    display: block;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #172b4d;
+    text-decoration: none;
+    border: 1px solid #e9ecef;
+}
+
+.atalho:hover {
+    border-color: #2685d8;
+    color: #2685d8;
+    transform: translateY(-2px);
+    transition: 0.2s;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+}
